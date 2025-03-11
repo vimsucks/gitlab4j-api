@@ -1,39 +1,15 @@
 # GitLab4J&trade; API (gitlab4j-api)<br />Java Client Library for the GitLab REST API
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.gitlab4j/gitlab4j-api.svg)](http://mvnrepository.com/artifact/org.gitlab4j/gitlab4j-api)
-[![Build Status](https://travis-ci.org/gitlab4j/gitlab4j-api.svg?branch=master)](https://travis-ci.org/gitlab4j/gitlab4j-api)
+[![Build Status](https://github.com/gitlab4j/gitlab4j-api/actions/workflows/ci-build.yml/badge.svg?branch=main)](https://github.com/gitlab4j/gitlab4j-api/actions/workflows/ci-build.yml)
 [![javadoc.io](https://javadoc.io/badge2/org.gitlab4j/gitlab4j-api/javadoc.io.svg)](https://javadoc.io/doc/org.gitlab4j/gitlab4j-api)
-
 
 GitLab4J&trade; API (gitlab4j-api) provides a full featured and easy to consume Java library for working with GitLab repositories via the GitLab REST API.  Additionally, full support for working with GitLab webhooks and system hooks is also provided.
 
 ---
-## Table of Contents
-* [GitLab Server Version Support](#gitLab-server-version-support)<br/>
-* [Using GitLab4J-API](#using-gitlab4j-api)<br/>
-  * [Java 8 Requirement](#java-8-requirement)<br/>
-  * [Javadocs](#javadocs)<br/>
-  * [Project Set Up](#project-set-up)<br/>
-  * [Usage Examples](#usage-examples)<br/>
-  * [Setting Request Timeouts](#setting-request-timeouts)<br/>
-  * [Connecting Through a Proxy Server](#connecting-through-a-proxy-server)<br/>
-  * [GitLab API V3 and V4 Support](#gitLab-api-v3-and-v4-support)<br/>
-  * [Logging of API Requests and Responses](#logging-of-api-requests-and-responses)<br/>
-  * [Results Paging](#results-paging)<br/>
-  * [Java 8 Stream Support](#java-8-stream-support)<br/>
-    * [Eager evaluation example usage](#eager-evaluation-example-usage)<br/>
-    * [Lazy evaluation example usage](#lazy%20evaluation-example-usage)<br/>
-  * [Java 8 Optional&lt;T&gt; Support](#java-8-optional-support)<br/>
-  * [Issue Time Estimates](#issue-time-estimates)<br/>
-* [Making API Calls](#making-api-calls)<br/>
-  * [Available Sub APIs](#available-sub-apis)
-
----
 ## GitLab Server Version Support
 
-GitLab4J-API supports version 11.0+ of GitLab Community Edition [(gitlab-ce)](https://gitlab.com/gitlab-org/gitlab-ce/) and GitLab Enterprise Edition [(gitlab-ee)](https://gitlab.com/gitlab-org/gitlab-ee/). 
-
-GitLab released GitLab Version 11.0 in June of 2018 which included many major changes to GitLab.  If you are using GitLab server earlier than version 11.0, it is highly recommended that you either update your GitLab install or use a version of this library that was released around the same time as the version of GitLab you are using. 
+GitLab4J-API supports both GitLab Community Edition [(gitlab-ce)](https://gitlab.com/gitlab-org/gitlab-ce/) and GitLab Enterprise Edition [(gitlab-ee)](https://gitlab.com/gitlab-org/gitlab-ee/).
 
 **NOTICE**:  
 As of GitLab 11.0 support for the GitLab API v3 has been removed from the GitLab server (see https://about.gitlab.com/2018/06/01/api-v3-removal-impending/). Support for GitLab API v3 will be removed from this library sometime in 2019. If you are utilizing the v3 support, please update your code to use GitLab API v4.
@@ -41,8 +17,8 @@ As of GitLab 11.0 support for the GitLab API v3 has been removed from the GitLab
 ---
 ## Using GitLab4J-API
 
-### **Java 8 Requirement**
-As of GitLab4J-API 4.8.0, Java 8+ is now required to use GitLab4J-API.
+### **Java 11 Requirement**
+As of GitLab4J-API 6.0.0, Java 11+ is now required to use GitLab4J-API.
 
 ### **Javadocs**
 Javadocs are available here: [![javadoc.io](https://javadoc.io/badge2/org.gitlab4j/gitlab4j-api/javadoc.io.svg)](https://javadoc.io/doc/org.gitlab4j/gitlab4j-api)
@@ -50,29 +26,138 @@ Javadocs are available here: [![javadoc.io](https://javadoc.io/badge2/org.gitlab
 
 ### **Project Set Up**
 To utilize GitLab4J&trade; API in your Java project, simply add the following dependency to your project's build file:<br /> 
+
 **Gradle: build.gradle**
 ```java
 dependencies {
     ...
-    compile group: 'org.gitlab4j', name: 'gitlab4j-api', version: '5.0.1'
+    implementation group: 'org.gitlab4j', name: 'gitlab4j-api', version: '6.0.0-rc.9'
 }
 ```
-
-**NOTE:** Pulling dependencies may fail when using Gradle prior to 4.5. See [Gradle issue 3065](https://github.com/gradle/gradle/issues/3065#issuecomment-364092456)
 
 **Maven: pom.xml**
 ```xml
 <dependency>
     <groupId>org.gitlab4j</groupId>
     <artifactId>gitlab4j-api</artifactId>
-    <version>5.0.1</version>
+    <version>6.0.0-rc.9</version>
 </dependency>
+```
+
+**Jbang:**
+
+ [Jbang](https://www.jbang.dev/) is very convinient to run scripts writen in Java having dependencies on third party libraries.
+
+ Just add this line at the top of your script:
+
+```java
+//DEPS org.gitlab4j:gitlab4j-api:6.0.0-rc.9
 ```
 
 **Ivy and SBT**<br/>
 There have been reports of problems resolving some dependencies when using Ivy or SBT, for help resolving those issues see:<br/>
 <a href="https://github.com/eclipse-ee4j/jaxrs-api/issues/571">JAX-RS API Issue #571</a><br/>
 <a href="https://github.com/eclipse-ee4j/jaxrs-api/issues/572">JAX-RS API Issue #572</a>
+
+### **Lastest version**
+
+While we are frequently creating releases, you might be interested by a feature that has not been published yet.
+You can use jars created by [jitpack](https://jitpack.io/) to get the newest version.
+
+**Usage with gradle:**
+
+```gradle
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+        content {
+            includeGroup "com.github.gitlab4j.gitlab4j-api"
+        }
+    }
+}
+
+dependencies {
+    // ...
+    implementation 'com.github.gitlab4j.gitlab4j-api:gitlab4j-api:main-SNAPSHOT'
+    // ...
+}
+```
+
+**Usage with maven:**
+
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>com.github.gitlab4j.gitlab4j-api</groupId>
+    <artifactId>gitlab4j-api</artifactId>
+    <version>main-SNAPSHOT</version>
+  </dependency>
+  <!-- ... -->
+</dependencies>
+```
+
+**Usage with jbang:**
+
+You just need to declare the dependency like this, instead of using the maven coordinates:
+
+```java
+//DEPS https://github.com/gitlab4j/gitlab4j-api/tree/main#gitlab4j-api:SNAPSHOT
+```
+
+**Using a specific commit**
+
+Version `main-SNAPSHOT` indicates that you would like to get the latest of the `main` branch.
+You can also point to a specific commit:
+
+```gradle
+dependencies {
+    implementation 'com.github.gitlab4j.gitlab4j-api:gitlab4j-api:ab6b84c6b0'
+}
+```
+
+```xml
+<dependency>
+    <groupId>com.github.gitlab4j.gitlab4j-api</groupId>
+    <artifactId>gitlab4j-api</artifactId>
+    <version>ab6b84c6b0</version>
+</dependency>
+```
+
+```java
+//DEPS https://github.com/gitlab4j/gitlab4j-api/tree/ab6b84c6b096ea3079d25115a59c272a4ae602aa
+```
+
+---
+
+### **Models jar**
+
+For some usages, the HTTP layer based on Jersey can't be used.
+Those projects might want to use the Jackson-based model classes, and implement the REST call themself.
+
+**Gradle: build.gradle**
+```java
+dependencies {
+    ...
+    implementation 'org.gitlab4j:gitlab4j-models:6.0.0-rc.9'
+}
+```
+
+**Maven: pom.xml**
+```xml
+<dependency>
+    <groupId>org.gitlab4j</groupId>
+    <artifactId>gitlab4j-models</artifactId>
+    <version>6.0.0-rc.9</version>
+</dependency>
+```
 
 ---
 
@@ -175,10 +260,10 @@ GitLab4J-API provides an easy to use paging mechanism to page through lists of r
 Here are a couple of examples on how to use the Pager:
 ```java
 // Get a Pager instance that will page through the projects with 10 projects per page
-Pager<Project> projectPager = gitlabApi.getProjectsApi().getProjects(10);
+Pager<Project> projectPager = gitLabApi.getProjectApi().getProjects(10);
 
 // Iterate through the pages and print out the name and description
-while (projectsPager.hasNext())) {
+while (projectPager.hasNext()) {
     for (Project project : projectPager.next()) {
         System.out.println(project.getName() + " -: " + project.getDescription());
     }
@@ -551,7 +636,7 @@ List<Runner> runners = gitLabApi.getRunnersApi().getAllRunners();
 #### SearchApi
 ```java
 // Do a global search for Projects
-List<?> projects = gitLabApi.getSearchApi().globalSearch(SearchScope.PROJECTS, "text-to-search-for");
+List<Project> projects = gitLabApi.getSearchApi().globalSearch(SearchScope.PROJECTS, "text-to-search-for");
 ```
 
 #### ServicesApi

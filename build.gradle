@@ -1,0 +1,131 @@
+plugins {
+    id 'com.diffplug.spotless' version '6.25.0' apply false
+    id 'org.kordamp.gradle.jandex' version '2.1.0' apply false
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'net.researchgate.release' version '3.1.0'
+}
+
+wrapper {
+    gradleVersion = '8.10.1'
+}
+
+String groupId = 'org.gitlab4j'
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'signing'
+    apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'maven-publish'
+    apply plugin: 'org.kordamp.gradle.jandex'
+
+    group = groupId
+
+    signing {
+        useGpgCmd()
+        sign(publishing.publications)
+    }
+
+    tasks.withType(Sign) {
+        onlyIf {
+            project.hasProperty('signing.gnupg.keyName')
+        }
+    }
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+
+        compileJava.options.encoding = "UTF-8"
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+    }
+
+    spotless {
+        java {
+            palantirJavaFormat()
+            importOrder 'java', 'javax', 'jakarta', 'org', 'com', ''
+            removeUnusedImports()
+        }
+    }
+
+    repositories {
+        // mavenLocal()
+        mavenCentral()
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+
+    tasks.named("javadoc") {
+        inputs.files(tasks.getByPath("jandex").outputs.files)
+    }
+}
+
+nexusPublishing {
+    packageGroup = 'org.gitlab4j'
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://oss.sonatype.org/service/local/"))
+            username = project.findProperty('ossSonatypeUsername') ?: ''
+            password = project.findProperty('ossSonatypePassword') ?: ''
+        }
+    }
+}
+
+release {
+    buildTasks = ['doRelease']
+    git {
+        requireBranch.set('main')
+    }
+}
+
+def checkLastVersionValueTask = tasks.register('checkLastVersionValue') {
+    doLast {
+        if(version.endsWith('SNAPSHOT')) {
+            throw new GradleException("version '$version' ends with SNAPSHOT, this is not a release build!")
+        }
+        if(lastVersion != version) {
+            throw new GradleException("lastVersion '$lastVersion' does not match version '$version', fix it in the 'gradle.properties' file.")
+        }
+    }
+}
+
+def updateLastVersionValueTask = tasks.register('updateLastVersionValue') {
+    doLast {
+        def propertiesFile = file('gradle.properties')
+        def content = propertiesFile.text
+        def newVersion = project.findProperty('release.releaseVersion') ?: version.replace('-SNAPSHOT', '')
+        content = content.replaceAll("lastVersion=[0-9a-z\\.\\-]+", "lastVersion=" + newVersion)
+        propertiesFile.text = content
+
+        def readmeFile = file('README.md')
+        def readme = readmeFile.text
+        readme = readme.replace(lastVersion, newVersion)
+        readmeFile.text = readme
+    }
+}
+
+task doRelease {
+    dependsOn(
+            checkLastVersionValueTask,
+            'initializeSonatypeStagingRepository', 
+            'clean',
+            'build'
+    )
+}
+
+model {
+    tasks.unSnapshotVersion {
+        dependsOn updateLastVersionValueTask
+    }
+}
+// dependency on 'publishToSonatype' must be added in a 'afterEvaluate' block, see https://github.com/gradle/gradle/issues/16543#issuecomment-2529428010
+afterEvaluate {
+    model {
+        tasks.doRelease {
+            dependsOn project.getTasksByName('publishToSonatype', true)
+        }
+    }
+}

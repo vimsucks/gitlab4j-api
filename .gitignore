@@ -16,7 +16,7 @@
 *.pydevproject
 .project
 .metadata
-/bin
+bin/
 tmp/
 *.tmp
 *.bak
@@ -45,6 +45,11 @@ local.properties
 ### Maven ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
+
+### Gradle ###
+.gradle
+build/
+!/gradle/wrapper/gradle-wrapper.jar
 
 # Test properties file for gitlab4j
 test-gitlab4j.properties
