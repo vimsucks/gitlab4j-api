@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 
 import org.gitlab4j.api.models.Discussion;
+import org.gitlab4j.api.models.LineRange;
 import org.gitlab4j.api.models.Note;
 import org.gitlab4j.api.models.Position;
 import org.gitlab4j.models.utils.ISO8601;
@@ -447,6 +448,25 @@ public class DiscussionsApi extends AbstractApi {
                     .withParam("position[height]", position.getHeight())
                     .withParam("position[x]", position.getX())
                     .withParam("position[y]", position.getY());
+
+            LineRange lineRange = position.getLineRange();
+            if (lineRange != null) {
+                LineRange.Position start = lineRange.getStart();
+                if (start != null) {
+                    formData.withParam("position[line_range][start][line_code]", start.getLineCode(), true);
+                    formData.withParam("position[line_range][start][type]", start.getType());
+                    formData.withParam("position[line_range][start][old_line]", start.getOldLine());
+                    formData.withParam("position[line_range][start][new_line]", start.getNewLine());
+                }
+
+                LineRange.Position end = lineRange.getEnd();
+                if (end != null) {
+                    formData.withParam("position[line_range][end][line_code]", end.getLineCode(), true);
+                    formData.withParam("position[line_range][end][type]", end.getType());
+                    formData.withParam("position[line_range][end][old_line]", end.getOldLine());
+                    formData.withParam("position[line_range][end][new_line]", end.getNewLine());
+                }
+            }
         }
 
         Response response = post(
